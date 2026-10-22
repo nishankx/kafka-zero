@@ -112,3 +112,40 @@ func TestDecodeFetchResponseBrokerError(t *testing.T) {
 		t.Fatalf("got %d records, want 0", len(result.Records))
 	}
 }
+
+func TestEncodeReplicateRequest(t *testing.T) {
+	got, err := EncodeReplicateRequest("orders", 1, 42, []byte("Hello"))
+	if err != nil {
+		t.Fatalf("encode failed: %v", err)
+	}
+
+	var expected bytes.Buffer
+	expected.WriteByte(byte(Replicate))
+	_ = binary.Write(&expected, binary.BigEndian, uint16(6))
+	expected.WriteString("orders")
+	_ = binary.Write(&expected, binary.BigEndian, int32(1))
+	_ = binary.Write(&expected, binary.BigEndian, int64(42))
+	_ = binary.Write(&expected, binary.BigEndian, int32(5))
+	expected.WriteString("Hello")
+
+	if !bytes.Equal(got, expected.Bytes()) {
+		t.Fatalf("encoded bytes mismatch\ngot: %v\nwant: %v", got, expected.Bytes())
+	}
+}
+
+func TestEncodeTopicNotification(t *testing.T) {
+	got, err := EncodeTopicNotification("orders")
+	if err != nil {
+		t.Fatalf("encode failed: %v", err)
+	}
+
+	expected := []byte{
+		byte(TopicNotification),
+		0x00, 0x06,
+		'o', 'r', 'd', 'e', 'r', 's',
+	}
+
+	if !bytes.Equal(got, expected) {
+		t.Fatalf("encoded bytes mismatch\ngot: %v\nwant: %v", got, expected)
+	}
+}

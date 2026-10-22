@@ -113,3 +113,95 @@ func EncodeCreateTopicRequest(topic string, numPartitions int32, replicationFact
 
 	return buf.Bytes(), nil
 }
+
+func EncodeReplicateRequest(
+	topic string,
+	partition int32,
+	offset int64,
+	message []byte,
+) ([]byte, error) {
+	topicBytes := []byte(topic)
+
+	if len(topicBytes) > math.MaxUint16 {
+		return nil, errors.New("topic name too long")
+	}
+	if partition < 0 {
+		return nil, errors.New("partition cannot be negative")
+	}
+	if offset < 0 {
+		return nil, errors.New("offset cannot be negative")
+	}
+	if len(message) > math.MaxInt32 {
+		return nil, errors.New("message too large")
+	}
+
+	var buf bytes.Buffer
+
+	buf.WriteByte(byte(Replicate))
+
+	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes))); err != nil {
+		return nil, fmt.Errorf("encode topic length: %w", err)
+	}
+
+	buf.Write(topicBytes)
+
+	if err := binary.Write(&buf, binary.BigEndian, partition); err != nil {
+		return nil, fmt.Errorf("encode partition: %w", err)
+	}
+
+	if err := binary.Write(&buf, binary.BigEndian, offset); err != nil {
+		return nil, fmt.Errorf("encode offset: %w", err)
+	}
+
+	if err := binary.Write(&buf, binary.BigEndian, int32(len(message))); err != nil {
+		return nil, fmt.Errorf("encode message length: %w", err)
+	}
+
+	buf.Write(message)
+
+	return buf.Bytes(), nil
+}
+
+func EncodeTopicNotification(topic string) ([]byte, error) {
+	topicBytes := []byte(topic)
+
+	if len(topicBytes) > math.MaxUint16 {
+		return nil, errors.New("topic name too long")
+	}
+
+	var buf bytes.Buffer
+
+	buf.WriteByte(byte(TopicNotification))
+
+	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes))); err != nil {
+		return nil, fmt.Errorf("encode topic length: %w", err)
+	}
+
+	buf.Write(topicBytes)
+
+	return buf.Bytes(), nil
+}
+
+func EncodeErrorResponse(message string) ([]byte, error) {
+	messageBytes := []byte(message)
+
+	if len(messageBytes) > math.MaxUint16 {
+		return nil, errors.New("error message too long")
+	}
+
+	var buf bytes.Buffer
+
+	buf.WriteByte(byte(ErrorResponse))
+
+	if err := binary.Write(
+		&buf,
+		binary.BigEndian,
+		uint16(len(messageBytes)),
+	); err != nil {
+		return nil, fmt.Errorf("encode error message length: %w", err)
+	}
+
+	buf.Write(messageBytes)
+
+	return buf.Bytes(), nil
+}

@@ -145,7 +145,6 @@ func DecodeFetchResponse(data []byte) (FetchResult, error) {
 	return result, nil
 }
 
-
 func DecodeMetadataResponse(data []byte) (MetadataResult, error) {
 	var result MetadataResult
 	r := bytes.NewReader(data)
