@@ -23,20 +23,17 @@ func EncodeProduceRequest(topic string, partition int32, message []byte) ([]byte
 
 	buf.WriteByte(byte(Produce))
 
-	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes)));
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes))); err != nil {
 		return nil, fmt.Errorf("encode topic length: %w", err)
 	}
 
 	buf.Write(topicBytes)
 
-	if err := binary.Write(&buf, binary.BigEndian, partition);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, partition); err != nil {
 		return nil, fmt.Errorf("encode partition: %w", err)
 	}
 
-	if err := binary.Write(&buf, binary.BigEndian, int32(len(message)));
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, int32(len(message))); err != nil {
 		return nil, fmt.Errorf("encode message length: %w", err)
 	}
 
@@ -44,7 +41,6 @@ func EncodeProduceRequest(topic string, partition int32, message []byte) ([]byte
 
 	return buf.Bytes(), nil
 }
-
 
 func EncodeFetchRequest(topic string, partition int32, offset, maxBytes int32) ([]byte, error) {
 	//Purpose: Encodes a request to fetch (read) messages from a specific topic, partition, starting from a given offset
@@ -55,25 +51,21 @@ func EncodeFetchRequest(topic string, partition int32, offset, maxBytes int32) (
 
 	buf.WriteByte(byte(Fetch))
 
-	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topic)));
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topic))); err != nil {
 		return nil, fmt.Errorf("encode topic length: %w", err)
 	}
 
 	buf.Write([]byte(topic))
 
-	if err := binary.Write(&buf, binary.BigEndian, partition);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, partition); err != nil {
 		return nil, fmt.Errorf("encode partition: %w", err)
 	}
 
-	if err := binary.Write(&buf, binary.BigEndian, offset);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, offset); err != nil {
 		return nil, fmt.Errorf("encode offset: %w", err)
 	}
 
-	if err := binary.Write(&buf, binary.BigEndian, maxBytes);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, maxBytes); err != nil {
 		return nil, fmt.Errorf("encode maxBytes: %w", err)
 	}
 
@@ -94,7 +86,7 @@ func EncodeMetadataRequest() ([]byte, error) {
 func EncodeCreateTopicRequest(topic string, numPartitions int32, replicationFactor int16) ([]byte, error) {
 	//Purpose: Encodes a request to create a new topic with specified partitions and replication
 	// Key parameters: Topic name, number of partitions, and replication factor
-	
+
 	topicBytes := []byte(topic)
 
 	if len(topicBytes) > math.MaxUint16 {
@@ -105,20 +97,17 @@ func EncodeCreateTopicRequest(topic string, numPartitions int32, replicationFact
 
 	buf.WriteByte(byte(CreateTopic))
 
-	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes)));
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, uint16(len(topicBytes))); err != nil {
 		return nil, fmt.Errorf("encode topic length: %w", err)
 	}
 
 	buf.Write(topicBytes)
 
-	if err := binary.Write(&buf, binary.BigEndian, numPartitions);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, numPartitions); err != nil {
 		return nil, fmt.Errorf("encode number of partitions: %w", err)
 	}
 
-	if err := binary.Write(&buf, binary.BigEndian, replicationFactor);
-	err != nil {
+	if err := binary.Write(&buf, binary.BigEndian, replicationFactor); err != nil {
 		return nil, fmt.Errorf("encode replication factor: %w", err)
 	}
 
